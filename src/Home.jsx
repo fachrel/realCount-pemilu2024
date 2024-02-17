@@ -75,16 +75,6 @@ const Home = () => {
             setKelurahan(response.data);
         // }
     };
-
-
-    //   useEffect(() => {
-
-    //   }, [idkota]);
-  
-    //   useEffect(() => {
-
-    //   }, [idkecamatan]);
-
     useEffect(() => {
         const fetchData = async () => {
           try {
@@ -150,7 +140,6 @@ const Home = () => {
 
     const handleKotaChange = (event) => {
         onLoad();    
-
         setIdKecamatan();
         setIdKelurahan();
         const selectedIdKota = event.target.value;
@@ -224,53 +213,46 @@ const Home = () => {
             </thead>
             <tbody>
                 {apiData.map(item => (
-                <tr key={item.id}> 
+                <tr key={item.id} className="text-white"> 
                     <td>{item.nama}</td>
                     <td>{item.api2Data.persen}</td>
-                    <td>{item.api2Data['100025']}</td>
+                    {/* <td>{item.api2Data['100025']}</td>
                     <td>{item.api2Data['100026']}</td>
-                    <td>{item.api2Data['100027']}</td>
-                        {/* <td>
-                            {
-                                idkelurahan ? (
-                                    item.api2Data['100025'] > 250 ? (
-                                        <>
-                                            {item.api2Data['100025']}salah
-                                        </>
-                                    ) : (
-                                        item.api2Data['100025']
-                                    )
-                                ) : null
-                            }
-                        </td>
-                        <td>
-                            {
-                                idkelurahan ? (
-                                    item.api2Data['100026'] > 250 ? (
-                                        <>
-                                            {item.api2Data['100026']}salah
-                                        </>
-                                    ) : (
-                                        item.api2Data['100026']
-                                    )
-                                ) : (
-                                    item.api2Data['100026']
-                                )
-                            }
-                        </td>
-                        <td>
-                            {
-                                idkelurahan ? (
-                                    item.api2Data['100027'] > 250 ? (
-                                        <>
-                                            {item.api2Data['100027']}salah
-                                        </>
-                                    ) : (
-                                        item.api2Data['100027']
-                                    )
-                                ) : null
-                            }
-                        </td> */}
+                    <td>{item.api2Data['100027']}</td> */}
+                    <td className={idkelurahan && item.api2Data['100025'] > 250 ? "red" : ""}>
+                        {
+                            item.api2Data['100025'] != null ? (
+                                <>
+                                    {item.api2Data['100025']}
+                                </>
+                            ) : (
+                                "Data sedang dalam proses"
+                            )
+                        }
+                    </td>
+                    <td className={idkelurahan && item.api2Data['100026'] > 250 ? "red" : ""}>
+                        {
+                            item.api2Data['100026'] != null ? (
+                                <>
+                                    {item.api2Data['100026']}
+                                </>
+                            ) : (
+                                "Data sedang dalam proses"
+                            )
+                        }
+                    </td>
+
+                    <td className={idkelurahan && item.api2Data['100027'] > 250 ? "red" : ""}>
+                        {
+                            item.api2Data['100027'] != null ? (
+                                <>
+                                    {item.api2Data['100027']}
+                                </>
+                            ) : (
+                                "Data sedang dalam proses"
+                            )
+                        }                    
+                    </td>
                 </tr>
                 ))}
             </tbody>
