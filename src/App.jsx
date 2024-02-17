@@ -7,7 +7,7 @@ function App() {
     <Router>
       <Routes>
         {/* Define the route with optional parameters */}
-        <Route path="/:prov?/:kota?/:kecamatan?" element={<Home />} />
+        <Route path="/:prov?/:kot?/:kec?/:kel?" element={<Home />} />
         {/* Define other routes if needed */}
       </Routes>
     </Router>

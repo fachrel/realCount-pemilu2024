@@ -1,49 +1,121 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import axios from 'axios';
 import './App.css'
 
 
 const Home = () => {
-    const { prov } = useParams();
+    const { prov, kot, kec, kel, tps } = useParams();
 
+    const location = useLocation();
     const navigate = useNavigate(); // Replace useHistory with useNavigate
     const [apiData, setApiData] = useState([]);
 
     const [provinsi, setProvinsi] = useState([]);
     const [kota, setKota] = useState([]);
     const [kecamatan, setKecamatan] = useState([]);
+    const [kelurahan, setKelurahan] = useState([]);
   
     const [data, setData] = useState([]);
-    // Initialize 'provinsi' state with an empty string, or any default value you prefer
+
     const [idprovinsi, setIdProvinsi] = useState();
     const [idkota, setIdKota] = useState();
     const [idkecamatan, setIdKecamatan] = useState();
-  
+    const [idkelurahan, setIdKelurahan] = useState();
+
+
     useEffect(() => {
-      const fetchDataProv = async () => {
-        const response = await axios.get('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
-        setProvinsi(response.data);
-      };
+        fetchDataKota();
+        fetchDataKecamatan();
+        fetchDataKelurahan();
+    }, [idprovinsi, idkota, idkecamatan]);
+    
+    function onLoad() {
+        fetchDataKota();
+        fetchDataKecamatan();
+        fetchDataKelurahan();   
+        fetchDataProv(); 
 
-    //   const fetchData = async () => {
-    //     const response = await axios.get('https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp.json');
-    //     setData(response.data);
-    //     console.log(response.data)
-
-    //   };
-      fetchDataProv();
-    //   fetchData();
+        setIdProvinsi(prov);
+        setIdKota(kot);
+        setIdKecamatan(kec);
+        setIdKelurahan(kel);
+    }
+    useEffect(() => {
+        onLoad();
     }, []);
+    // useEffect(() => {
+
+    //   fetchDataProv();
+    // }, []);
+    const fetchDataProv = async () => {
+        const response = await axios.get('https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/0.json');
+        setProvinsi(response.data);
+    };
+
+    const fetchDataKota = async () => {
+        // if (idprovinsi) {
+            const response = await axios.get(`https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/${prov}.json`);
+            setKota(response.data);
+        // }
+    };
+
+    const fetchDataKecamatan = async () => {
+        // if (idkota) {
+            const response = await axios.get(`https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/${prov}/${kot}.json`);
+            setKecamatan(response.data);
+        // }
+    };
+
+    const fetchDataKelurahan = async () => {
+        // if (idkecamatan) {
+            const response = await axios.get(`https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/${prov}/${kot}/${kec}.json`);
+            setKelurahan(response.data);
+        // }
+    };
+
+
+    //   useEffect(() => {
+
+    //   }, [idkota]);
+  
+    //   useEffect(() => {
+
+    //   }, [idkecamatan]);
 
     useEffect(() => {
         const fetchData = async () => {
           try {
+            let apiUrl1 = "https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp";
+            let apiUrl2 = "https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp";
+
+            // Append kot and kec to the API URL if they exist
+            if (prov){
+                apiUrl1 += `/${prov}`;
+                apiUrl2 += `/${prov}`;
+                if (kot) {
+                    apiUrl1 += `/${kot}`;
+                    apiUrl2 += `/${kot}`;
+                  if (kec) {
+                        // const trimmedKec = kec.slice(0, -1);
+
+                        apiUrl1 += `/${kec}`;
+                        apiUrl2 += `/${kec}`;
+                        if (kel){
+                            apiUrl1 += `/${kel}`;
+                            apiUrl2 += `/${kel}`;
+                        }
+                  }
+              }
+            }else{
+                apiUrl1 += '/0';
+            }
+
             const [api1Response, api2Response] = await Promise.all([
-              axios.get(`https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/${prov}.json`),
-              axios.get(`https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp/${prov}.json`)
+              axios.get(apiUrl1 +=".json"),
+              axios.get(apiUrl2 +=".json")
             ]);
     
             const api1Data = api1Response.data;
@@ -55,7 +127,7 @@ const Home = () => {
             }));
     
             setApiData(mergedData);
-            console.log(mergedData)
+            // console.log(mergedData)
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -63,68 +135,81 @@ const Home = () => {
     
         fetchData();
         
-      }, [idprovinsi]);
+      }, [idprovinsi, idkota, idkecamatan, idkelurahan]);
 
-    useEffect(() => {
-      const fetchData = async () => {
-        const response = await axios.get('https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp.json');
-        setData(response.data);
-      };
-      fetchData();
-    }, []);
-  
-    useEffect(() => {
-      const fetchDataKota = async () => {
-        if (idprovinsi) {
-          const response = await axios.get(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${idprovinsi}.json`);
-          setKota(response.data);
-        }
-      };
-      fetchDataKota();
-  
-      const fetchData = async () => {
-        if (idprovinsi) {
-          const response = await axios.get(`https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/${idprovinsi}.json`);
-          setData(response.data);
-        }
-        // console.log(dataProvinsi)
-      };
-      fetchData();
-    }, [idprovinsi]);
-  
-    useEffect(() => {
-      const fetchData = async () => {
-        if (idkota) {
-          const response = await axios.get(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${idkota}.json`);
-          setKecamatan(response.data);
-        }
-      };
-      fetchData();
-    }, [idprovinsi]);
 
-    const handleSelectChange = (event) => {
+    const handleProvChange = (event) => {
+        onLoad();    
+        setIdKota();
+        setIdKecamatan();
+        setIdKelurahan();
         const selectedIdProvinsi = event.target.value;
         setIdProvinsi(selectedIdProvinsi);
         navigate(`/${selectedIdProvinsi}`);
-      };
+    };
+
+    const handleKotaChange = (event) => {
+        onLoad();    
+
+        setIdKecamatan();
+        setIdKelurahan();
+        const selectedIdKota = event.target.value;
+        setIdKota(selectedIdKota);
+        navigate(`/${idprovinsi}/${selectedIdKota}`);
+    };
+
+    const handleKecamatanChange = (event) => {
+        onLoad();    
+
+        setIdKelurahan();
+        const selectedIdKecamatan = event.target.value;
+        setIdKecamatan(selectedIdKecamatan);
+        navigate(`/${idprovinsi}/${idkota}/${selectedIdKecamatan}`);
+    };
+
+    const handleKelurahanChange = (event) => {
+        onLoad();    
+
+        const selectedIdKelurahan = event.target.value;
+        setIdKelurahan(selectedIdKelurahan);
+        navigate(`/${idprovinsi}/${idkota}/${idkecamatan}/${selectedIdKelurahan}`);
+    };
   return (
     <>
+    <h1 className="text-3xl font-bold underline">
+      Data real count KPU
+    </h1>
     <div>
-        <select name="prov" id="prov" onChange={handleSelectChange} value={idprovinsi}>
-          {provinsi.map(item => (
-              <option key={item.id} value={item.id}>{item.name}</option>
-          ))}
+        <select name="prov" id="prov" onChange={handleProvChange} value={prov}>
+            <option value="">Pilih Provinsi</option>
+            {provinsi.map(item => (
+                <option key={item.id} value={item.kode}>{item.nama}</option>
+            ))}
         </select>
-      {/* <p>Selected Value: {provinsi}</p> */}
     </div>
     <div>
-      <select name="prov" id="kota" onChange={(event) => setIdKota(event.target.value)}>
-        
+      <select name="kota" id="kota" onChange={handleKotaChange} value={kot}>
+      <option value="">Pilih Kabupaten/Kota</option>
         {kota.map(item => (
-            <option key={item.id} value={item.id}>{item.name}</option>
+            <option key={item.id} value={item.kode}>{item.nama}</option>
         ))} 
       </select>
-      {/* <p>Selected Value: {provinsi}</p> */}
+    </div>
+    <div>
+      <select name="kec" id="kec" onChange={handleKecamatanChange} value={kec}>
+        <option value="">Pilih Kecamatan</option>
+        {kecamatan.map(item => (
+            <option key={item.id} value={item.kode}>{item.nama}</option>
+        ))} 
+      </select>
+    </div>
+    <div>
+      <select name="kelurahan" id="kelurahan" onChange={handleKelurahanChange} value={kel}>
+        <option value="">Pilih Kelurahan</option>
+        {kelurahan.map(item => (
+            <option key={item.id} value={item.kode}>{item.nama}</option>
+        ))} 
+      </select>
     </div>
     <div>
         <table>
@@ -145,11 +230,53 @@ const Home = () => {
                     <td>{item.api2Data['100025']}</td>
                     <td>{item.api2Data['100026']}</td>
                     <td>{item.api2Data['100027']}</td>
+                        {/* <td>
+                            {
+                                idkelurahan ? (
+                                    item.api2Data['100025'] > 250 ? (
+                                        <>
+                                            {item.api2Data['100025']}salah
+                                        </>
+                                    ) : (
+                                        item.api2Data['100025']
+                                    )
+                                ) : null
+                            }
+                        </td>
+                        <td>
+                            {
+                                idkelurahan ? (
+                                    item.api2Data['100026'] > 250 ? (
+                                        <>
+                                            {item.api2Data['100026']}salah
+                                        </>
+                                    ) : (
+                                        item.api2Data['100026']
+                                    )
+                                ) : (
+                                    item.api2Data['100026']
+                                )
+                            }
+                        </td>
+                        <td>
+                            {
+                                idkelurahan ? (
+                                    item.api2Data['100027'] > 250 ? (
+                                        <>
+                                            {item.api2Data['100027']}salah
+                                        </>
+                                    ) : (
+                                        item.api2Data['100027']
+                                    )
+                                ) : null
+                            }
+                        </td> */}
                 </tr>
                 ))}
             </tbody>
         </table>
     </div>
+
   </>
   )
 }
